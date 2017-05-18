@@ -47,6 +47,7 @@
     }
   },
   "browser": "firefox",
+  "user-agent": "agent",
   "wait-after-page-load": 1,
   "threads": 12
 }

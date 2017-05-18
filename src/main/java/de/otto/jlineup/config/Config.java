@@ -34,9 +34,13 @@ public final class Config {
     public static final int DEFAULT_WAIT_FOR_FONTS_TIME = 0;
     public static final int DEFAULT_THREADS = 1;
     public static final int DEFAULT_REPORT_FORMAT = 2;
+    public static final String EXAMPLE_USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 " +
+            "(KHTML, like Gecko) Chrome/57.0.2987.133 Safari/537.36";
 
     public final Map<String, UrlConfig> urls;
     public final Browser.Type browser;
+    @SerializedName("user-agent")
+    public final String userAgent;
     @SerializedName(value = "wait-after-page-load", alternate = "async-wait")
     public final Float globalWaitAfterPageLoad;
     @SerializedName("window-height")
@@ -53,6 +57,7 @@ public final class Config {
     public Config() {
         urls = null;
         browser = DEFAULT_BROWSER;
+        userAgent = null;
         globalWaitAfterPageLoad = DEFAULT_GLOBAL_WAIT_AFTER_PAGE_LOAD;
         windowHeight = DEFAULT_WINDOW_HEIGHT;
         threads = DEFAULT_THREADS;
@@ -60,9 +65,10 @@ public final class Config {
         reportFormat = DEFAULT_REPORT_FORMAT;
     }
 
-    public Config(final Map<String, UrlConfig> urls, final Browser.Type browser, final Float globalWaitAfterPageLoad, final Integer windowHeight, final Integer threads, final Integer reportFormat, final boolean debug) {
+    public Config(final Map<String, UrlConfig> urls, final Browser.Type browser, String userAgent, final Float globalWaitAfterPageLoad, final Integer windowHeight, final Integer threads, final Integer reportFormat, final boolean debug) {
         this.urls = urls;
         this.browser = browser != null ? browser : DEFAULT_BROWSER;
+        this.userAgent = userAgent;
         this.globalWaitAfterPageLoad = globalWaitAfterPageLoad != null ? globalWaitAfterPageLoad : DEFAULT_GLOBAL_WAIT_AFTER_PAGE_LOAD;
         this.windowHeight = windowHeight != null ? windowHeight : DEFAULT_WINDOW_HEIGHT;
         this.threads = threads != null ? threads : DEFAULT_THREADS;
@@ -75,7 +81,7 @@ public final class Config {
     }
 
     public static Config defaultConfig(String url) {
-        return new Config(ImmutableMap.of(url, new UrlConfig()), null, null, null, null, null, false);
+        return new Config(ImmutableMap.of(url, new UrlConfig()), null, null, null, null, null, null, false);
     }
 
     @Override
@@ -83,6 +89,7 @@ public final class Config {
         return "Config{" +
                 "urls=" + urls +
                 ", browser=" + browser +
+                ", user-agent=" + userAgent +
                 ", globalWaitAfterPageLoad=" + globalWaitAfterPageLoad +
                 ", windowHeight=" + windowHeight +
                 ", reportFormat=" + reportFormat +
@@ -100,6 +107,7 @@ public final class Config {
                 threads == config.threads &&
                 Objects.equals(urls, config.urls) &&
                 browser == config.browser &&
+                userAgent == config.userAgent &&
                 Objects.equals(globalWaitAfterPageLoad, config.globalWaitAfterPageLoad) &&
                 Objects.equals(windowHeight, config.windowHeight) &&
                 Objects.equals(reportFormat, config.reportFormat);
@@ -107,7 +115,8 @@ public final class Config {
 
     @Override
     public int hashCode() {
-        return Objects.hash(urls, browser, globalWaitAfterPageLoad, windowHeight, reportFormat, debug, threads);
+        return Objects.hash(urls, browser, userAgent, globalWaitAfterPageLoad, windowHeight, reportFormat, debug,
+                threads);
     }
 
     public static Config exampleConfig() {
@@ -131,6 +140,7 @@ public final class Config {
                         DEFAULT_WAIT_FOR_FONTS_TIME
                 )),
                 Browser.Type.PHANTOMJS,
+                EXAMPLE_USER_AGENT,
                 DEFAULT_GLOBAL_WAIT_AFTER_PAGE_LOAD,
                 DEFAULT_WINDOW_HEIGHT,
                 DEFAULT_THREADS,

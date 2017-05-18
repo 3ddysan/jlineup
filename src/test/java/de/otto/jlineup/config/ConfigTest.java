@@ -9,6 +9,7 @@ import java.io.FileNotFoundException;
 
 import static de.otto.jlineup.browser.Browser.Type.FIREFOX;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 public class ConfigTest {
@@ -35,6 +36,7 @@ public class ConfigTest {
     public void shouldReadMinimalConfigAndInsertDefaults() throws FileNotFoundException {
         Config config = Config.readConfig("src/test/resources/", "lineup_minimal_test.json");
         assertThat(config.browser, is(Browser.Type.PHANTOMJS));
+        assertThat(config.userAgent, is(nullValue()));
         assertThat(config.windowHeight, is(800));
         assertThat(config.urls.get("https://www.otto.de").windowWidths, is(ImmutableList.of(800)));
         assertThat(config.urls.get("https://www.otto.de").paths, is(ImmutableList.of("/")));
@@ -43,6 +45,7 @@ public class ConfigTest {
 
     private void assertThatConfigContentsAreCorrect(Config config) {
         assertThat(config.browser, is(FIREFOX));
+        assertThat(config.userAgent, is("agent"));
         assertThat(config.globalWaitAfterPageLoad, is(1f));
         assertThat(config.urls.get("https://www.otto.de").windowWidths, is(ImmutableList.of(600, 800, 1200)));
         assertThat(config.urls.get("https://www.otto.de").paths, is(ImmutableList.of("/","multimedia")));

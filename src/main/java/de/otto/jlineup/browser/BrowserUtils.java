@@ -1,5 +1,6 @@
 package de.otto.jlineup.browser;
 
+import com.google.common.collect.ImmutableList;
 import de.otto.jlineup.config.Config;
 import de.otto.jlineup.config.Parameters;
 import de.otto.jlineup.config.UrlConfig;
@@ -10,7 +11,9 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.firefox.FirefoxProfile;
 import org.openqa.selenium.phantomjs.PhantomJSDriver;
+import org.openqa.selenium.remote.DesiredCapabilities;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,22 +50,41 @@ public class BrowserUtils {
 
     synchronized WebDriver getWebDriverByConfig(Config config) {
         WebDriver driver;
+        final boolean withUserAgent = config.userAgent != null && !config.userAgent.equals("");
         switch (config.browser) {
             case FIREFOX:
                 FirefoxDriverManager.getInstance().setup();
-                driver = new FirefoxDriver();
+                if(withUserAgent) {
+                    FirefoxProfile profile = new FirefoxProfile();
+                    profile.setPreference("general.useragent.override", config.userAgent);
+                    DesiredCapabilities cap = DesiredCapabilities.firefox();
+                    cap.setCapability(FirefoxDriver.PROFILE, profile);
+                    driver = new FirefoxDriver(cap);
+                } else {
+                    driver = new FirefoxDriver();
+                }
                 break;
             case CHROME:
                 ChromeDriverManager.getInstance().setup();
                 ChromeOptions options = new ChromeOptions();
-                //To work in a headless env, this is needed
-                options.addArguments("--no-sandbox");
+                final ImmutableList.Builder<String> argsBuilder = ImmutableList.builder();
+                if(withUserAgent) {
+                    argsBuilder.add("--user-agent=" + config.userAgent);
+                }
+                argsBuilder.add("--no-sandbox");
+                options.addArguments(argsBuilder.build());
                 driver = new ChromeDriver(options);
                 break;
             case PHANTOMJS:
             default:
                 PhantomJsDriverManager.getInstance().setup();
-                driver = new PhantomJSDriver();
+                if(withUserAgent) {
+                    DesiredCapabilities cap = DesiredCapabilities.phantomjs();
+                    cap.setCapability("phantomjs.page.settings.userAgent", config.userAgent);
+                    driver = new PhantomJSDriver(cap);
+                } else {
+                    driver = new PhantomJSDriver();
+                }
                 break;
         }
         return driver;
